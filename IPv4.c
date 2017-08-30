@@ -33,7 +33,7 @@ static int * InitOctets(char * str)
 			temp_octet[temp_octet_i] = '\0'; // null character
 		}
 
-		else if ((ch == '.' || last_char) && temp_octet_i > 0)
+		else if ((ch == SEPARATOR || last_char) && temp_octet_i > 0)
 		{
 			octet = atoi(temp_octet);
 			if (!(octet >= 0 && octet <= 255)) 

@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #define TOTAL_OCTETS 4
 #define BITS_PER_OCTET 8
-#define SEP '.'
+#define SEPARATOR '.'
 
 struct IPv4Addr
 {
