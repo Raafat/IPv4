@@ -155,7 +155,7 @@ IPv4Mask * IsIPv4Mask(char * str)
 
 	// ensure that not all four octets are zero or one(mask-specific condition)
 	all_octets_zero = (octets[0] == 0 && octets[1] == 0 && octets[2] == 0 && octets[3] == 0);
-	all_octets_one = (octets[0] == 255 && octets[1] == 255 && octets[2] == 255 && octets[3] == 255);
+	all_octets_one = (octets[0] == 255 && octets[1] == 255 && octets[2] == 255 && (octets[3] == 255 || octets[3] == 254));
 
 	if (all_octets_zero || all_octets_one) 
 	{
@@ -197,29 +197,6 @@ IPv4Mask * IsIPv4Mask(char * str)
 	return pt;
 }
 
-/*
-bool GetClass(IPv4Mask * mask)
-{
-	// class A
-	if (mask->first_octet == 255 && (mask->second_octet > 0 | mask->third_octet > 0 || mask->fourth_octet > 0))
-		mask->Class = 'A';
-	
-	// class B
-	else if (mask->first_octet == 255 && mask->second_octet >= 240 && (mask->third_octet > 0 || mask->fourth_octet > 0))
-		mask->Class = 'B';
-
-	// class C
-	else if (mask->first_octet == 255 && mask->second_octet == 255 && mask->third_octet == 255 && mask-fourth_octe > 0)
-		mask->Class = 'C';
-
-	// no class
-	else
-		return false;
-
-	return true;
-}
-*/
-
 // according to RFC1918
 bool IsIPv4PrivateAddr(IPv4Addr * addr)
 {
@@ -241,39 +218,12 @@ bool IsIPv4PrivateAddr(IPv4Addr * addr)
 	return false;
 }
 
-/*
-//preconditions: ipv4 must be intialized by the ItnitializeIPv4Address function
-bool GetIPv4AddrAsBinary(const IPv4Addr * ipv4)
-{
-	// convert each octet to an integer
-	int octets[4] = {atoi(ipv4->first_octet), atoi(ipv4->second_octet), atoi(ipv4->third_octet), atoi(ipv4->fourth_octet)};
-	
-	// Start to get the binary representation of each octet
-	for (int octet_index = 0; octet_index < 4; octet_index++)
-	{
-		for (int shifts = BITS_PER_OCTET - 1; shifts >= 0; shifts--)
-			printf("%d", octets[octet_index] >> shifts & 0x1);
-		
-		printf("%c", '.');
-	};
-
-	return true;
-}
-
-*/
-
 // subnets
 IPv4Subnet * CreateSubnet(IPv4Addr * id, IPv4Mask * mask)
 {
 	IPv4Subnet * subnet; 
 	
 	if (!(id->IsInitialized && mask->IsInitialized) || !IsUnicastIPv4Addr(id))
-	{	
-		return NULL;
-	}
-
-	// ensure mask is a valid mask regading subnet's id
-	if (id->Class = 'A' && (!(mask->first_octet == 255 && ( mask->second_octet > 0 || mask->third_octet > 0 || mask->fourth_octet > 0))))
 	{	
 		return NULL;
 	}
@@ -320,5 +270,65 @@ unsigned long GetNumberOfHosts(IPv4Subnet * subnet)
 
 	return (first_hosts * second_hosts * third_hosts * fourth_hosts - 2);
 
+}
+
+char * GetIPv4AddrAsString(const IPv4Addr * addr)
+{
+	// big enough to hold an IPv4 address which is 16 long characters at maximum
+	char * addrp = (char *) malloc( 16 * sizeof(char));
+
+	if (addrp)
+	{
+		sprintf(addrp, "%d.%d.%d.%d", addr->first_octet, addr->second_octet, addr->third_octet, addr->fourth_octet);
+		return addrp;
+	}
+
+	return NULL;
+}
+
+char ** GetHostsAddr(IPv4Subnet * subnet)
+{
+	int first_octet = subnet->id.first_octet, second_octet = subnet->id.second_octet;
+	int third_octet = subnet->id.third_octet, fourth_octet = subnet->id.fourth_octet;
+
+	unsigned long total_hosts = GetNumberOfHosts(subnet);
+
+	char * hosts_addrs = (char *) malloc(total_hosts * 16 * sizeof(char));
+	char ** hosts_addr = (char **) malloc(total_hosts * sizeof(char *));
+
+	for (unsigned long host = 1, i = 0, j = 0; host <= total_hosts; host++)
+	 {
+		 if (second_octet == 255 && third_octet == 255 && fourth_octet == 255)
+		 {
+			 first_octet++;
+			 second_octet = 0;
+			 third_octet = 0;
+			 fourth_octet = 0;
+		 }
+
+		else if (third_octet == 255 && fourth_octet == 255)
+		 {
+			 second_octet++;
+			 third_octet = 0;
+			 fourth_octet = 0;
+		 }
+
+		else if (fourth_octet == 255)
+		 {
+			 third_octet++;
+			 fourth_octet = 0;
+		 }
+
+		 else
+		 {
+			 fourth_octet++;
+		 }
+
+		 sprintf(hosts_addrs + j, "%d.%d.%d.%d", first_octet, second_octet, third_octet, fourth_octet);
+		 hosts_addr[i++] = hosts_addrs + j;
+		 j += 16;
+	 }
+
+	 return hosts_addr;
 }
 
