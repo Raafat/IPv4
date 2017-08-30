@@ -24,7 +24,10 @@ static int * InitOctets(char * str)
 
 		if (isdigit(ch))
 		{	
-			if (temp_octet_i == 3) break; // there are more than 3 digits
+			if (temp_octet_i == 3) 
+			{
+				break; // there are more than 3 digits
+			}
 
 			temp_octet[temp_octet_i++] = ch;
 			temp_octet[temp_octet_i] = '\0'; // null character
@@ -33,21 +36,35 @@ static int * InitOctets(char * str)
 		else if ((ch == '.' || last_char) && temp_octet_i > 0)
 		{
 			octet = atoi(temp_octet);
-			if (!(octet >= 0 && octet <= 255)) break ;
+			if (!(octet >= 0 && octet <= 255)) 
+			{
+				break;
+			}
 
 			octets[octets_i++] = octet;
 			temp_octet_i = 0; // reset for the next octet
 		}
 
-		else break;
+		else 
+		{
+			break;
+		}
 
-		if (last_char) break; // no need for further checking
+		if (last_char) 
+		{
+			break; // no need for further checking
+		}
 	};
 
 	if (octets_i == 4)
-		return octets;
-	else
+	 {
+		 return octets;
+	 }
+
+	else 
+	{
 		free(octets);
+	}
 	
 	return NULL;
 }
@@ -59,26 +76,46 @@ IPv4Addr * IsIPv4Addr(char * str)
 	char Class;
 	IPv4Addr * addr = NULL; 
 
-	if (!(octets = InitOctets(str))) return false;
+	if (!(octets = InitOctets(str))) 
+	{
+		return false;
+	}
 
 	// class A
-	if (octets[0] > 0 && octets[0] < 127) Class = 'A';
+	if (octets[0] > 0 && octets[0] < 127) 
+	{
+		Class = 'A';
+	}
 
 	// class B
-	else if (octets[0] > 127 && octets[0] < 192) Class = 'B';
+	else if (octets[0] > 127 && octets[0] < 192) 
+	{
+		Class = 'B';
+	}
 
 	// class C
-	else if (octets[0] > 191 && octets[0] < 224) Class = 'C';
+	else if (octets[0] > 191 && octets[0] < 224) 
+	{
+		Class = 'C';
+	}
 
 	// class D
-	else if (octets[0] > 223 && octets[0] < 240) Class = 'D';
+	else if (octets[0] > 223 && octets[0] < 240) 
+	{
+		Class = 'D';
+	}
 
 	// class E
-	else if (octets[0] > 239 && octets[0] < 248) Class = 'E';
+	else if (octets[0] > 239 && octets[0] < 248) 
+	{
+		Class = 'E';
+	}
 
 	// not classified
-	else
+	else 
+	{
 		return false;
+	}
 
 	// initialize IPv4Addr
 	if(addr = (IPv4Addr *) malloc(sizeof(IPv4Addr)))
@@ -95,7 +132,10 @@ IPv4Addr * IsIPv4Addr(char * str)
 
 bool IsUnicastIPv4Addr(IPv4Addr * addr)
 {
-	if (addr->IsInitialized && (addr->Class == 'A' || addr->Class == 'B' || addr->Class == 'C')) return true;
+	if (addr->IsInitialized && (addr->Class == 'A' || addr->Class == 'B' || addr->Class == 'C')) 
+	{
+		return true;
+	}
 
 	return false;
 }
@@ -108,13 +148,19 @@ IPv4Mask * IsIPv4Mask(char * str)
 	bool all_octets_zero, all_octets_one;
 	IPv4Mask * pt;
 	
-	if (!(octets = InitOctets(str))) return NULL;
+	if (!(octets = InitOctets(str))) 
+	{
+		return NULL;
+	}
 
-	// ensure not all four octets are zero or one(mask-specific condition)
+	// ensure that not all four octets are zero or one(mask-specific condition)
 	all_octets_zero = (octets[0] == 0 && octets[1] == 0 && octets[2] == 0 && octets[3] == 0);
 	all_octets_one = (octets[0] == 255 && octets[1] == 255 && octets[2] == 255 && octets[3] == 255);
 
-	if (all_octets_zero || all_octets_one) return NULL;
+	if (all_octets_zero || all_octets_one) 
+	{
+		return NULL;
+	}
 		
 	// initialize mask_octets and valid_mask-octets arrays
 	int valid_mask_octets[9] = {0, 128, 192, 224, 240, 248, 252, 254, 255};
@@ -132,8 +178,10 @@ IPv4Mask * IsIPv4Mask(char * str)
 					break;
 			 	}
 			}
-			else if (j == end_of_array) // and here is no matching
-				return NULL; 
+			else if (j == end_of_array) // and there is no matching
+			{
+				 return NULL; 
+			}
 		}
 	}
 
@@ -172,14 +220,13 @@ bool GetClass(IPv4Mask * mask)
 }
 */
 
-// caculations of this function are based on RFC 1918
+// according to RFC1918
 bool IsIPv4PrivateAddr(IPv4Addr * addr)
 {
 	// make sure octets in place
-	if (!addr->IsInitialized)
+	if (!addr->IsInitialized) 
 	{
-		fprintf(stderr, "IPv4Addr is not initialized.");
-		return false; // Initialization is not successfull
+		return false;
 	}
 	
 	// initialize the first and second octets
@@ -187,7 +234,9 @@ bool IsIPv4PrivateAddr(IPv4Addr * addr)
 	
 	// 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
 	if (octets[0] == 10 || (octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31) || (octets[0] == 192 && octets[1] == 168))
+	{	
 		return true;
+	}
 
 	return false;
 }
@@ -219,11 +268,15 @@ IPv4Subnet * CreateSubnet(IPv4Addr * id, IPv4Mask * mask)
 	IPv4Subnet * subnet; 
 	
 	if (!(id->IsInitialized && mask->IsInitialized) || !IsUnicastIPv4Addr(id))
+	{	
 		return NULL;
+	}
 
 	// ensure mask is a valid mask regading subnet's id
 	if (id->Class = 'A' && (!(mask->first_octet == 255 && ( mask->second_octet > 0 || mask->third_octet > 0 || mask->fourth_octet > 0))))
+	{	
 		return NULL;
+	}
 	
 	if (subnet = (IPv4Subnet *) malloc(sizeof(IPv4Subnet)))
 	{
@@ -246,22 +299,26 @@ unsgined long GetNumberOfHosts(IPv4Subnet * subnet)
 	unsigned long first_hosts = 1, second_hosts = 1, third_hosts = 1, fourth_hosts = 1;
 
 	if (subnet->mask.first_octet < 255)
+	{
 		first_hosts = 256 - subnet->mask.first_octet;
+	}
 	
 	if (subnet->mask.second_octet < 255)
+	{	
 		second_hosts = 256 - subnet->mask.second_octet;
-	
+	}
+
 	if (subnet->mask.third_octet < 255)
+	{	
 		third_hosts = 256 - subnet->mask.third_octet;
+	}
 
 	if (subnet->mask.fourth_octet < 255)
+	{	
 		fourth_hosts = 256 - subnet->mask.fourth_octet;
+	}
 
 	return (first_hosts * second_hosts * third_hosts * fourth_hosts - 2);
 
 }
 
-bool ListOfHostIDs(IPv4Subnet * subnet)
-{
-	return false;
-}

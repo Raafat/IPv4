@@ -49,26 +49,4 @@ bool IsIPv4PrivateAddr(IPv4Addr * addr);
 
 IPv4Subnet * CreateSubnet(IPv4Addr * id, IPv4Mask * mask);
 
-
 unsigned long GetNumberOfHosts(IPv4Subnet * subnet);
-
-unsigned long GetNumberOfSubnets(IPv4Subnet * subnet);
-
-/*
-bool InitToIPv4Format(char * string, void * ipv4, char * addr_type);
-
-bool IsIPv4PrivateAddr(IPv4Addr * ipv4);
-
-bool IsIPv4Addr(const IPv4Addr * ipv4);
-
-bool GetClassOfIPv4Addr(IPv4Addr * ipv4);
-
-bool InitializeIPv4Addr(IPv4Addr * ipv4);
-
-bool GetIPv4AddrAsBinary(const IPv4Addr * ipv4);
-
-bool IsIPv4Mask(IPv4Mask * addr);
-
-IPv4Subnet CreateIPv4Subnet(IPv4Addr * id, IPv4Mask * mask);
-*/
-#endif
