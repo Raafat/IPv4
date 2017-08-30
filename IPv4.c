@@ -294,7 +294,7 @@ IPv4Subnet * CreateSubnet(IPv4Addr * id, IPv4Mask * mask)
 	return subnet;
 }
 
-unsgined long GetNumberOfHosts(IPv4Subnet * subnet)
+unsigned long GetNumberOfHosts(IPv4Subnet * subnet)
 {
 	unsigned long first_hosts = 1, second_hosts = 1, third_hosts = 1, fourth_hosts = 1;
 

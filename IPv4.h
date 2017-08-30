@@ -50,3 +50,5 @@ bool IsIPv4PrivateAddr(IPv4Addr * addr);
 IPv4Subnet * CreateSubnet(IPv4Addr * id, IPv4Mask * mask);
 
 unsigned long GetNumberOfHosts(IPv4Subnet * subnet);
+
+#endif
