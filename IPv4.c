@@ -272,6 +272,45 @@ unsigned long GetNumberOfHosts(IPv4Subnet * subnet)
 
 }
 
+IPv4Addr * GetFirstUsableAddr(IPv4Subnet * subnet)
+{
+	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
+
+	if (!addr)
+	{
+		return NULL;
+	}
+
+	*addr = subnet->id;
+	addr->fourth_octet++;
+	addr->IsInitialized = true;
+
+	return addr;
+}
+
+IPv4Addr * GetLastUsableAddr(IPv4Subnet * subnet)
+{
+	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
+	unsigned long total_hosts = GetNumberOfHosts(subnet);
+	unsigned long rem;
+	*addr = subnet->id;
+
+	if (!addr)
+	{
+		return NULL;
+	}
+
+	addr->fourth_octet += total_hosts % 256;
+
+	addr->third_octet += (rem = total_hosts / 256) <= 255 ? rem : 255;
+
+	addr->second_octet += (rem = total_hosts / (256 * 256)) <= (256 * 256) ? rem : 255;
+
+	addr->first_octet += (rem = total_hosts / (256 * 256 * 256)) <= (256 * 256 * 256) ? rem : 255;
+
+	return addr;
+}
+
 char * GetIPv4AddrAsString(const IPv4Addr * addr)
 {
 	// big enough to hold an IPv4 address which is 16 long characters at maximum
@@ -292,9 +331,16 @@ char ** GetHostsAddr(IPv4Subnet * subnet)
 	int third_octet = subnet->id.third_octet, fourth_octet = subnet->id.fourth_octet;
 
 	unsigned long total_hosts = GetNumberOfHosts(subnet);
-
+	
 	char * hosts_addrs = (char *) malloc(total_hosts * 16 * sizeof(char));
 	char ** hosts_addr = (char **) malloc(total_hosts * sizeof(char *));
+
+	if (!(hosts_addrs && hosts_addr))
+	{
+		printf("Would you like to read address into a file: ");
+		puts("can't get needed memory asdf.\n");
+		return NULL;
+	}
 
 	for (unsigned long host = 1, i = 0, j = 0; host <= total_hosts; host++)
 	 {

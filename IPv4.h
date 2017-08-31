@@ -57,4 +57,8 @@ unsigned long GetNumberOfHosts(IPv4Subnet * subnet);
 
 char ** GetHostsAddr(IPv4Subnet * subnet);
 
+IPv4Addr * GetFirstUsableAddr(IPv4Subnet * subnet);
+
+IPv4Addr * GetLastUsableAddr(IPv4Subnet * subnet);
+
 #endif
