@@ -590,6 +590,9 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 		second_octet = last_addr->second_octet;
 		third_octet = last_addr->third_octet;
 		fourth_octet = last_addr->fourth_octet + 2;
+
+		free(network);
+		free(last_addr);
 		
 		if (second_octet == 255 && third_octet == 255 && fourth_octet >= 255)
 		 {
