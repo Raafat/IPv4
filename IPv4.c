@@ -558,7 +558,7 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 	}
 
 	else if (network->id.Class == 'B')
-	{	puts("Class B");
+	{
 		first_octet = network->id.first_octet;
 		second_octet = network->id.second_octet;
 		third_octet = fourth_octet = 0;
@@ -566,7 +566,6 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 
 	else if (network->id.Class == 'C')
 	{
-		puts("Class C");
 		first_octet = network->id.first_octet;
 		second_octet = network->id.second_octet;
 		third_octet = network->id.third_octet;
