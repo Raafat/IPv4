@@ -19,7 +19,7 @@ typedef struct IPv4Addr IPv4Addr;
 
 IPv4Addr * IsIPv4Addr (const char * str);
 
-bool IsUnicastIPv4Addr(const IPv4Addr * addr);
+bool IsIPv4AddrUnicast(const IPv4Addr * addr);
 
 bool IsIPv4PrivateAddr(const IPv4Addr * addr);
 
@@ -51,16 +51,18 @@ typedef struct IPv4Network IPv4Network;
 
 IPv4Network * CreateIPv4Network(const IPv4Addr * id, const IPv4Mask * mask);
 
-unsigned long GetNumberOfHosts(const IPv4Network * network);
+unsigned long GetNumberOfIPv4Hosts(const IPv4Network * network);
 
-IPv4Addr * GetFirstUsableAddr(const IPv4Network * network);
+IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network);
 
-IPv4Addr * GetLastUsableAddr(const IPv4Network * network);
+IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network);
 
-char ** GetHostAddrs(const IPv4Network * network, unsigned long limit);
+char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit);
+
+bool ReadIPv4HostAddrsIntoAFile(IPv4Network * network, unsigned long limit, FILE * IPv4File);
 
 unsigned long GetNumberOfIPv4Subnets(IPv4Network * network);
 
-IPv4Network ** AvailableIPv4Subnets(IPv4Network * network);
+char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit);
 
 #endif

@@ -67,7 +67,6 @@ static int * InitOctets(const char * str)
 	return NULL;
 }
 
-//
 IPv4Addr * IsIPv4Addr(const char * str)
 {
 	int * octets;
@@ -128,7 +127,7 @@ IPv4Addr * IsIPv4Addr(const char * str)
 	return addr;
 }
 
-bool IsUnicastIPv4Addr(const IPv4Addr * addr)
+bool IsIPv4AddrUnicast(const IPv4Addr * addr)
 {
 	if (addr->IsInitialized && (addr->Class == 'A' || addr->Class == 'B' || addr->Class == 'C')) 
 	{
@@ -138,7 +137,6 @@ bool IsUnicastIPv4Addr(const IPv4Addr * addr)
 	return false;
 }
 
-//
 IPv4Mask * IsIPv4Mask(const char * str)
 {
 	int START = 0, end_of_array = 8;
@@ -160,7 +158,7 @@ IPv4Mask * IsIPv4Mask(const char * str)
 		return NULL;
 	}
 		
-	// initialize mask_octets and valid_mask-octets arrays
+	// valid mask octet values
 	int valid_mask_octets[9] = {0, 128, 192, 224, 240, 248, 252, 254, 255};
 
 	for (int i = 0; i < 4; i++)
@@ -198,15 +196,27 @@ IPv4Mask * IsIPv4Mask(const char * str)
 // according to RFC1918
 bool IsIPv4PrivateAddr(const IPv4Addr * addr)
 {
-	// make sure octets in place
+	// make sure octets are in place
 	if (!addr->IsInitialized) 
 	{
 		return false;
 	}
 	
-	// 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
-	if (addr->first_octet == 10 || (addr->first_octet == 172 && addr->second_octet >= 16 && addr->second_octet <= 31) || (addr->first_octet == 192 && addr->second_octet == 168))
-	{	
+	// 10.0.0.0/8
+	if (addr->first_octet == 10)
+	{
+		return true;
+	}
+	
+	// 172.16.0.0/12
+	else if (addr->first_octet == 172 && (addr->second_octet > 15 && addr->second_octet < 32))
+	{
+		return true;
+	}
+
+	// 192.168.0.0/24
+	else if (addr->first_octet == 192 && addr->second_octet == 168)
+	{
 		return true;
 	}
 
@@ -218,7 +228,7 @@ IPv4Network * CreateIPv4Network(const IPv4Addr * id, const IPv4Mask * mask)
 {
 	IPv4Network * network; 
 
-	if (!(mask->IsInitialized && IsUnicastIPv4Addr(id)))
+	if (!(mask->IsInitialized && IsIPv4AddrUnicast(id)))
 	{
 		return NULL;
 	}
@@ -240,7 +250,7 @@ IPv4Network * CreateIPv4Network(const IPv4Addr * id, const IPv4Mask * mask)
 	return network;
 }
 
-unsigned long GetNumberOfHosts(const IPv4Network * network)
+unsigned long GetNumberOfIPv4Hosts(const IPv4Network * network)
 {
 	unsigned long first_hosts = 1, second_hosts = 1, third_hosts = 1, fourth_hosts = 1;
 
@@ -268,7 +278,7 @@ unsigned long GetNumberOfHosts(const IPv4Network * network)
 
 }
 
-IPv4Addr * GetFirstUsableAddr(const IPv4Network * network)
+IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network)
 {
 	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
 
@@ -284,11 +294,13 @@ IPv4Addr * GetFirstUsableAddr(const IPv4Network * network)
 	return addr;
 }
 
-IPv4Addr * GetLastUsableAddr(const IPv4Network * network)
+IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network)
 {
 	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
-	unsigned long total_hosts = GetNumberOfHosts(network);
+
+	unsigned long total_hosts = GetNumberOfIPv4Hosts(network);
 	unsigned long rem;
+
 	*addr = network->id;
 
 	if (!addr)
@@ -321,12 +333,12 @@ char * GetIPv4AddrAsString(const IPv4Addr * addr)
 	return NULL;
 }
 
-char ** GetHostAddrs(const IPv4Network * network, unsigned long limit)
+char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit)
 {
 	int first_octet = network->id.first_octet, second_octet = network->id.second_octet;
 	int third_octet = network->id.third_octet, fourth_octet = network->id.fourth_octet;
 
-	unsigned long total_hosts = GetNumberOfHosts(network);
+	unsigned long total_hosts = GetNumberOfIPv4Hosts(network);
 
 	// use limit as a maximum limit and ensure limit is not beyond value of total_hosts
 	total_hosts = total_hosts < limit ? total_hosts : limit;
@@ -336,7 +348,18 @@ char ** GetHostAddrs(const IPv4Network * network, unsigned long limit)
 
 	if (!(host_addrs && host_addrs_heads))
 	{
-		puts("Error(GetHostAddrs function): Couldn't receive needed memory.");
+		puts("Error(GetHostAddrs function): Couldn't receive requested memory.");
+
+		if(host_addrs)
+		{
+			free(host_addrs);
+		}
+
+		else
+		{
+			free(host_addrs_heads);
+		}
+
 		return NULL;
 	}
 
@@ -376,10 +399,60 @@ char ** GetHostAddrs(const IPv4Network * network, unsigned long limit)
 	 return host_addrs_heads;
 }
 
+bool ReadIPv4HostAddrsIntoAFile(IPv4Network * network, unsigned long limit, FILE * IPv4File)
+{
+	int first_octet = network->id.first_octet, second_octet = network->id.second_octet;
+	int third_octet = network->id.third_octet, fourth_octet = network->id.fourth_octet;
+	
+	unsigned long total_hosts = GetNumberOfIPv4Hosts(network);
+
+	// use limit as a maximum limit and ensure limit is not beyond value of total_hosts
+	total_hosts = total_hosts < limit ? total_hosts : limit;
+	
+	// ensure that file is readable
+	if (!IPv4File) 
+	{
+		return false;
+	}
+
+	// go over host addresses
+	for (unsigned long host = 1; host <= total_hosts; host++)
+	 {
+		 if (second_octet == 255 && third_octet == 255 && fourth_octet == 255)
+		 {
+			 first_octet++;
+			 second_octet = 0;
+			 third_octet = 0;
+			 fourth_octet = 0;
+		 }
+
+		else if (third_octet == 255 && fourth_octet == 255)
+		 {
+			 second_octet++;
+			 third_octet = 0;
+			 fourth_octet = 0;
+		 }
+
+		else if (fourth_octet == 255)
+		 {
+			 third_octet++;
+			 fourth_octet = 0;
+		 }
+
+		 else
+		 {
+			 fourth_octet++;
+		 }
+
+		 fprintf(IPv4File, "%d.%d.%d.%d,", first_octet, second_octet, third_octet, fourth_octet);
+	 }
+
+	return true;
+}
+
 static unsigned int GetNumberOfBits(int value)
 {
-	enum value_bits {one_bit = 128, two_bits = 192, three_bits = 224, four_bits = 240, five_bits = 248, six_bits = 252, seven_bits = 254,\
-					eight_bits = 255};
+	enum value_bits {one_bit = 128, two_bits = 192, three_bits = 224, four_bits = 240, five_bits = 248, six_bits = 252, seven_bits = 254, eight_bits = 255};
 
 	switch(value)
 	{
@@ -396,7 +469,7 @@ static unsigned int GetNumberOfBits(int value)
 
 unsigned long GetNumberOfIPv4Subnets(IPv4Network * network)
 {
-	unsigned int subnets;
+	unsigned  long subnets;
 	
 	if (!network->IsInitialized)
 	{
@@ -429,7 +502,7 @@ unsigned long GetNumberOfIPv4Subnets(IPv4Network * network)
 			subnets += GetNumberOfBits(network->mask.fourth_octet);
 		}
 
-		return (unsigned long) 1 << subnets;
+		return 1 << subnets;
 	}
 
 	else if (network->id.Class == 'C' && network->mask.fourth_octet > 0)
@@ -440,4 +513,106 @@ unsigned long GetNumberOfIPv4Subnets(IPv4Network * network)
 	}
 
 	return 0;
+}
+
+char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
+{
+	int first_octet, second_octet, third_octet, fourth_octet;
+
+	IPv4Addr subnet_id;
+	IPv4Addr * last_addr;
+
+	unsigned long total_subnets = GetNumberOfIPv4Subnets(network);
+	
+	char * subnets = (char *) malloc(total_subnets * 16 * sizeof(char));
+	char ** subnet_heads = (char **) malloc(total_subnets * sizeof(char *));
+	
+	if (!(subnets && subnet_heads))
+	{
+		puts("Couldn't receiving requested memory.");
+		
+		if (subnets)
+		{
+			free(subnets);
+		}
+
+		else
+		{
+			free(subnet_heads);
+		}
+
+		return NULL;
+	}
+
+	// ensure network is initialized and there is at least one IPv4 subnet
+	if (!(network->IsInitialized && total_subnets))
+	{
+		return NULL;
+	}
+
+	// determine the classfull network's id
+	if (network->id.Class == 'A')
+	{
+		first_octet = network->id.first_octet;
+		second_octet = third_octet = fourth_octet = 0;
+	}
+
+	else if (network->id.Class == 'B')
+	{	puts("Class B");
+		first_octet = network->id.first_octet;
+		second_octet = network->id.second_octet;
+		third_octet = fourth_octet = 0;
+	}
+
+	else if (network->id.Class == 'C')
+	{
+		puts("Class C");
+		first_octet = network->id.first_octet;
+		second_octet = network->id.second_octet;
+		third_octet = network->id.third_octet;
+		fourth_octet = 0;
+	}
+
+	// use limit as a maximum limit and ensure limit is not beyond value of total_subnets
+	total_subnets = total_subnets < limit ? total_subnets : limit;
+	
+	for (int subnet = 1, j = 0, i = 0; subnet <= total_subnets; subnet++)
+	{
+		printf("total_subnets, subnet: %lu, %d.\n", total_subnets, subnet);
+		sprintf(subnets + j, "%d.%d.%d.%d",first_octet, second_octet, third_octet, fourth_octet);
+		subnet_heads[i++] = subnets + j;
+		j += 16;
+		
+		// subnet id of next subnet
+		subnet_id = (IPv4Addr) {first_octet, second_octet, third_octet, fourth_octet, 'B', true};
+		network = CreateIPv4Network(&subnet_id, &network->mask);
+		last_addr = GetLastUsableIPv4Addr(network);
+		first_octet = last_addr->first_octet;
+		second_octet = last_addr->second_octet;
+		third_octet = last_addr->third_octet;
+		fourth_octet = last_addr->fourth_octet + 2;
+		
+		if (second_octet == 255 && third_octet == 255 && fourth_octet >= 255)
+		 {
+		 	first_octet++;
+			second_octet = 0;
+			third_octet = 0;
+			fourth_octet = 0;
+		 }
+
+		else if (third_octet == 255 && fourth_octet >= 255)
+		 {
+			 second_octet++;
+			 third_octet = 0;
+			 fourth_octet = 0;
+		 }
+
+		else if (fourth_octet >= 255)
+		 {
+			 third_octet++;
+			 fourth_octet = 0;
+		 }
+
+	}
+	return subnet_heads;
 }
