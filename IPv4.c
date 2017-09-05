@@ -222,6 +222,20 @@ bool IsIPv4PrivateAddr(const IPv4Addr * addr)
 	return false;
 }
 
+char * GetIPv4AddrAsString(const IPv4Addr * addr)
+{
+	// big enough to hold an IPv4 address which is 16 long characters at maximum
+	char * addrp = (char *) malloc( 16 * sizeof(char));
+
+	if (addrp)
+	{
+		sprintf(addrp, "%d.%d.%d.%d", addr->first_octet, addr->second_octet, addr->third_octet, addr->fourth_octet);
+		return addrp;
+	}
+
+	return NULL;
+}
+
 // networks
 IPv4Network * CreateIPv4Network(const IPv4Addr * id, const IPv4Mask * mask)
 {
@@ -333,18 +347,34 @@ IPv4Addr * GetBroadcastIPv4Addr(const IPv4Network * network)
 	return bcast_addr;
 }
 
-char * GetIPv4AddrAsString(const IPv4Addr * addr)
+bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr, const IPv4Mask * mask)
 {
-	// big enough to hold an IPv4 address which is 16 long characters at maximum
-	char * addrp = (char *) malloc( 16 * sizeof(char));
-
-	if (addrp)
+	if (!(network->IsInitialized && addr->IsInitialized && mask->IsInitialized))
 	{
-		sprintf(addrp, "%d.%d.%d.%d", addr->first_octet, addr->second_octet, addr->third_octet, addr->fourth_octet);
-		return addrp;
+		return false;
 	}
 
-	return NULL;
+	if (network->id.first_octet != (addr->first_octet & mask->first_octet))
+	{
+		return false;
+	}
+
+	if (network->id.second_octet != (addr->second_octet & mask->second_octet))
+	{
+		return false;
+	}
+
+	if (network->id.third_octet != (addr->third_octet & mask->third_octet))
+	{
+		return false;
+	}
+
+	if (network->id.fourth_octet != (addr->fourth_octet & mask->fourth_octet))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit)
