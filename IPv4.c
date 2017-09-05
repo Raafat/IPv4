@@ -289,7 +289,6 @@ IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network)
 
 	*addr = network->id;
 	addr->fourth_octet++;
-	addr->IsInitialized = true;
 
 	return addr;
 }
@@ -577,7 +576,6 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 	
 	for (int subnet = 1, j = 0, i = 0; subnet <= total_subnets; subnet++)
 	{
-		printf("total_subnets, subnet: %lu, %d.\n", total_subnets, subnet);
 		sprintf(subnets + j, "%d.%d.%d.%d",first_octet, second_octet, third_octet, fourth_octet);
 		subnet_heads[i++] = subnets + j;
 		j += 16;
