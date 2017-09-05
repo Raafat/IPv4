@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <string.h>
 #include "IPv4.h" 
 
 static int * InitOctets(const char * str)
@@ -67,7 +66,7 @@ static int * InitOctets(const char * str)
 	return NULL;
 }
 
-IPv4Addr * IsIPv4Addr(const char * str)
+IPv4Addr * CreateIPv4Addr(const char * str)
 {
 	int * octets;
 	char Class;
@@ -75,7 +74,7 @@ IPv4Addr * IsIPv4Addr(const char * str)
 
 	if (!(octets = InitOctets(str))) // octets must be freed later
 	{
-		return false;
+		return NULL;
 	}
 
 	// class A
@@ -111,7 +110,7 @@ IPv4Addr * IsIPv4Addr(const char * str)
 	// not classified
 	else 
 	{
-		return false;
+		return NULL;
 	}
 
 	// initialize IPv4Addr
@@ -630,5 +629,6 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 		 }
 
 	}
+
 	return subnet_heads;
 }

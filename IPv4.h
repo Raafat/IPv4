@@ -17,7 +17,7 @@ struct IPv4Addr
 
 typedef struct IPv4Addr IPv4Addr;
 
-IPv4Addr * IsIPv4Addr (const char * str);
+IPv4Addr * CreateIPv4Addr(const char * str);
 
 bool IsIPv4AddrUnicast(const IPv4Addr * addr);
 
