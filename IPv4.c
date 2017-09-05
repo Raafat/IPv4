@@ -318,6 +318,22 @@ IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network)
 	return addr;
 }
 
+IPv4Addr * GetBroadcastIPv4Addr(const IPv4Network * network)
+{
+	IPv4Addr * bcast_addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
+
+	if (!bcast_addr)
+	{
+		return NULL;
+	}
+
+	bcast_addr = GetLastUsableIPv4Addr(network);
+	bcast_addr->fourth_octet++;
+	bcast_addr->IsInitialized = true;
+
+	return bcast_addr;
+}
+
 char * GetIPv4AddrAsString(const IPv4Addr * addr)
 {
 	// big enough to hold an IPv4 address which is 16 long characters at maximum
@@ -545,7 +561,7 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 
 	// ensure network is initialized and there is at least one IPv4 subnet
 	if (!(network->IsInitialized && total_subnets))
-	{
+	{	
 		return NULL;
 	}
 

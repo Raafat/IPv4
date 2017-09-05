@@ -57,6 +57,8 @@ IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network);
 
 IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network);
 
+IPv4Addr * GetBroadcastIPv4Addr(const IPv4Network * network);
+
 char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit);
 
 bool ReadIPv4HostAddrsIntoAFile(IPv4Network * network, unsigned long limit, FILE * IPv4File);
