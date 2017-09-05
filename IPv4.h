@@ -37,7 +37,7 @@ struct IPv4Mask
 
 typedef struct IPv4Mask IPv4Mask;
 
-IPv4Mask * IsIPv4Mask(const char * str);
+IPv4Mask * CreateIPv4Mask(const char * str);
 
 //networks 
 struct IPv4Network

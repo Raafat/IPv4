@@ -70,7 +70,7 @@ IPv4Addr * CreateIPv4Addr(const char * str)
 {
 	int * octets;
 	char Class;
-	IPv4Addr * addr; 
+	IPv4Addr * addr = NULL; 
 
 	if (!(octets = InitOctets(str))) // octets must be freed later
 	{
@@ -110,7 +110,7 @@ IPv4Addr * CreateIPv4Addr(const char * str)
 	// not classified
 	else 
 	{
-		return NULL;
+		goto BREAK;
 	}
 
 	// initialize IPv4Addr
@@ -121,7 +121,7 @@ IPv4Addr * CreateIPv4Addr(const char * str)
 		addr->IsInitialized = true;
 	}
 
-	free(octets);
+	BREAK:free(octets);
 
 	return addr;
 }
@@ -136,13 +136,13 @@ bool IsIPv4AddrUnicast(const IPv4Addr * addr)
 	return false;
 }
 
-IPv4Mask * IsIPv4Mask(const char * str)
+IPv4Mask * CreateIPv4Mask(const char * str)
 {
 	int START = 0, end_of_array = 8;
 	int * octets;
 	bool all_octets_zero, all_octets_one;
-	IPv4Mask * mask;
-	
+	IPv4Mask * mask = NULL; 
+
 	if (!(octets = InitOctets(str))) //octets must be freed later
 	{
 		return NULL;
@@ -154,7 +154,7 @@ IPv4Mask * IsIPv4Mask(const char * str)
 
 	if (all_octets_zero || all_octets_one) 
 	{
-		return NULL;
+		 goto BREAK;
 	}
 		
 	// valid mask octet values
@@ -175,7 +175,7 @@ IPv4Mask * IsIPv4Mask(const char * str)
 			}
 			else if (j == end_of_array) // and there is no matching
 			{
-				 return NULL; 
+				  goto BREAK; 
 			}
 		}
 	}
@@ -187,7 +187,7 @@ IPv4Mask * IsIPv4Mask(const char * str)
 		mask->IsInitialized = true;
 	}
 
-	free(octets);
+	BREAK:free(octets);
 
 	return mask;
 }
