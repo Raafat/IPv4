@@ -377,6 +377,34 @@ bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr,
 	return true;
 }
 
+bool IsClassfulIPv4Network(const IPv4Network * network)
+{
+	if (!network->IsInitialized)
+	{
+		return false;
+	}
+
+	// class A
+	if (network->id.Class == 'A' && network->mask.first_octet == 255 && network->mask.second_octet == 0 && network->mask.third_octet == 0 && network->mask.fourth_octet == 0)
+	{
+		return true;
+	}
+
+	// class B
+	else if (network->id.Class == 'B' && network->mask.first_octet == 255 && network->mask.second_octet == 255 && network->mask.third_octet == 0 && network->mask.fourth_octet == 0)
+	{
+		return true;
+	}
+
+	// class C
+	else if (network->id.Class == 'C' && network->mask.first_octet == 255 && network->mask.second_octet == 255 && network->mask.third_octet == 255 && network->mask.fourth_octet == 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit)
 {
 	int first_octet = network->id.first_octet, second_octet = network->id.second_octet;
