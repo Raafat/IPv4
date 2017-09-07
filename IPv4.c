@@ -1,4 +1,4 @@
-// IPv4.c. Version 1.0
+// IPv4.c version 1.0 beta
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
@@ -164,6 +164,49 @@ bool IsIPv4AddrPrivate(const IPv4Addr * addr)
 	}
 
 	return false;
+}
+
+char GetClassOfIPv4Addr(IPv4Addr * addr)
+{
+	char Class;
+
+	// class A
+	if (addr->first_octet > 0 && addr->first_octet < 127) 
+	{
+		Class = 'A';
+	}
+
+	// class B
+	else if (addr->first_octet > 127 && addr->first_octet < 192) 
+	{
+		Class = 'B';
+	}
+
+	// class C
+	else if (addr->first_octet > 191 && addr->first_octet < 224) 
+	{
+		Class = 'C';
+	}
+
+	// class D
+	else if (addr->first_octet > 223 && addr->first_octet < 240) 
+	{
+		Class = 'D';
+	}
+
+	// class E
+	else if (addr->first_octet > 239 && addr->first_octet < 248) 
+	{
+		Class = 'E';
+	}
+
+	// not classified
+	else 
+	{
+		Class = 'N';
+	}
+
+	return Class;
 }
 
 char * GetIPv4AddrAsString(const IPv4Addr * addr)
@@ -655,7 +698,7 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 		j += 16;
 		
 		// subnet id of next subnet
-		subnet_id = (IPv4Addr) {first_octet, second_octet, third_octet, fourth_octet, 'B', true};
+		subnet_id = (IPv4Addr) {first_octet, second_octet, third_octet, fourth_octet, 'A', true}; // notice that value of class is a dummy one
 		network = CreateIPv4Network(&subnet_id, &network->mask);
 		last_addr = GetLastUsableIPv4Addr(network);
 		first_octet = last_addr->first_octet;

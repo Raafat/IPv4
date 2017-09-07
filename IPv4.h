@@ -1,3 +1,5 @@
+// IPv4.h
+
 #ifndef _IPv4_H 
 #include <stdbool.h>
 #define TOTAL_OCTETS 4
@@ -22,6 +24,8 @@ IPv4Addr * CreateIPv4Addr(const char * str);
 bool IsIPv4AddrUnicast(const IPv4Addr * addr);
 
 bool IsIPv4AddrPrivate(const IPv4Addr * addr);
+
+char GetClassOfIPv4Addr(IPv4Addr * addr);
 
 char * GetIPv4AddrAsString(const IPv4Addr * addr);
 
