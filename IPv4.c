@@ -136,6 +136,51 @@ bool IsIPv4AddrUnicast(const IPv4Addr * addr)
 	return false;
 }
 
+// according to RFC1918
+bool IsIPv4AddrPrivate(const IPv4Addr * addr)
+{
+	// make sure octets are in place
+	if (!addr->IsInitialized) 
+	{
+		return false;
+	}
+	
+	// 10.0.0.0/8
+	if (addr->first_octet == 10)
+	{
+		return true;
+	}
+	
+	// 172.16.0.0/12
+	else if (addr->first_octet == 172 && (addr->second_octet > 15 && addr->second_octet < 32))
+	{
+		return true;
+	}
+
+	// 192.168.0.0/24
+	else if (addr->first_octet == 192 && addr->second_octet == 168)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+char * GetIPv4AddrAsString(const IPv4Addr * addr)
+{
+	// big enough to hold an IPv4 address which is 16 long characters at maximum
+	char * addrp = (char *) malloc( 16 * sizeof(char));
+
+	if (addrp)
+	{
+		sprintf(addrp, "%d.%d.%d.%d", addr->first_octet, addr->second_octet, addr->third_octet, addr->fourth_octet);
+		return addrp;
+	}
+
+	return NULL;
+}
+
+// IPv4 networks
 IPv4Mask * CreateIPv4Mask(const char * str)
 {
 	int START = 0, end_of_array = 8;
@@ -190,50 +235,6 @@ IPv4Mask * CreateIPv4Mask(const char * str)
 	BREAK:free(octets);
 
 	return mask;
-}
-
-// according to RFC1918
-bool IsIPv4PrivateAddr(const IPv4Addr * addr)
-{
-	// make sure octets are in place
-	if (!addr->IsInitialized) 
-	{
-		return false;
-	}
-	
-	// 10.0.0.0/8
-	if (addr->first_octet == 10)
-	{
-		return true;
-	}
-	
-	// 172.16.0.0/12
-	else if (addr->first_octet == 172 && (addr->second_octet > 15 && addr->second_octet < 32))
-	{
-		return true;
-	}
-
-	// 192.168.0.0/24
-	else if (addr->first_octet == 192 && addr->second_octet == 168)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-char * GetIPv4AddrAsString(const IPv4Addr * addr)
-{
-	// big enough to hold an IPv4 address which is 16 long characters at maximum
-	char * addrp = (char *) malloc( 16 * sizeof(char));
-
-	if (addrp)
-	{
-		sprintf(addrp, "%d.%d.%d.%d", addr->first_octet, addr->second_octet, addr->third_octet, addr->fourth_octet);
-		return addrp;
-	}
-
-	return NULL;
 }
 
 // networks

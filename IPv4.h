@@ -21,7 +21,7 @@ IPv4Addr * CreateIPv4Addr(const char * str);
 
 bool IsIPv4AddrUnicast(const IPv4Addr * addr);
 
-bool IsIPv4PrivateAddr(const IPv4Addr * addr);
+bool IsIPv4AddrPrivate(const IPv4Addr * addr);
 
 char * GetIPv4AddrAsString(const IPv4Addr * addr);
 
