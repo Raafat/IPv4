@@ -9,10 +9,10 @@
 // IPv4 addresses
 struct IPv4Addr
 {
-	int first_octet;
-	int second_octet;
-	int third_octet;
-	int fourth_octet;
+	unsigned int first_octet;
+	unsigned int second_octet;
+	unsigned int third_octet;
+	unsigned int fourth_octet;
 	char Class;
 	bool IsInitialized;
 };
@@ -32,10 +32,10 @@ char * GetIPv4AddrAsString(const IPv4Addr * addr);
 // masks
 struct IPv4Mask
 {
-	int first_octet;
-	int second_octet;
-	int third_octet;
-	int fourth_octet;
+	unsigned int first_octet;
+	unsigned int second_octet;
+	unsigned int third_octet;
+	unsigned int fourth_octet;
 	bool IsInitialized;
 };
 

@@ -170,6 +170,11 @@ char GetClassOfIPv4Addr(IPv4Addr * addr)
 {
 	char Class;
 
+	if (addr->IsInitialized)
+	{
+		return addr->Class;
+	}
+
 	// class A
 	if (addr->first_octet > 0 && addr->first_octet < 127) 
 	{
@@ -211,7 +216,7 @@ char GetClassOfIPv4Addr(IPv4Addr * addr)
 
 char * GetIPv4AddrAsString(const IPv4Addr * addr)
 {
-	// big enough to hold an IPv4 address which is 16 long characters at maximum
+	// big enough to hold an IPv4 address which is 16 characters long at maximum
 	char * addrp = (char *) malloc( 16 * sizeof(char));
 
 	if (addrp)
@@ -248,16 +253,19 @@ IPv4Mask * CreateIPv4Mask(const char * str)
 	// valid mask octet values
 	int valid_mask_octets[9] = {0, 128, 192, 224, 240, 248, 252, 254, 255};
 
+	// compare each octet of octets to each value of valid mask octets array to find a match
 	for (int i = 0; i < 4; i++)
 	{	
+		// over valid mask octets array
 		for (int j = START; j < 9; j++)
 		{
 			if (octets[i] == valid_mask_octets[j])
 			{
 				if (octets[i] != 255)
 				{
-					valid_mask_octets[end_of_array] = 0; // 0 is the only allowed value for next octets
-					START = end_of_array; // change starting point of search instead of searching over the whole array
+					// all next octes must be zero as their value(mask-specific condition)
+					valid_mask_octets[end_of_array] = 0; // thus 0 is the only allowed value for next octets
+					START = end_of_array; // change the starting point of search
 					break;
 			 	}
 			}
@@ -309,30 +317,15 @@ IPv4Network * CreateIPv4Network(const IPv4Addr * id, const IPv4Mask * mask)
 
 unsigned long GetNumberOfIPv4Hosts(const IPv4Network * network)
 {
-	unsigned long first_hosts = 1, second_hosts = 1, third_hosts = 1, fourth_hosts = 1;
+	unsigned int first_hosts, second_hosts, third_hosts, fourth_hosts;
 
-	if (network->mask.first_octet < 255)
-	{
-		first_hosts = 256 - network->mask.first_octet;
-	}
-	
-	if (network->mask.second_octet < 255)
-	{	
-		second_hosts = 256 - network->mask.second_octet;
-	}
+	first_hosts = 256 - network->mask.first_octet;
+	second_hosts = 256 - network->mask.second_octet;
+	third_hosts = 256 - network->mask.third_octet;
+	fourth_hosts = 256 - network->mask.fourth_octet;
 
-	if (network->mask.third_octet < 255)
-	{	
-		third_hosts = 256 - network->mask.third_octet;
-	}
-
-	if (network->mask.fourth_octet < 255)
-	{	
-		fourth_hosts = 256 - network->mask.fourth_octet;
-	}
-
-	return (first_hosts * second_hosts * third_hosts * fourth_hosts - 2);
-
+	// total hosts
+	return (unsigned long) (first_hosts * second_hosts * third_hosts * fourth_hosts - 2);
 }
 
 IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network)
@@ -370,7 +363,7 @@ IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network)
 
 	addr->second_octet += (rem = total_hosts / (256 * 256)) <= (256 * 256) ? rem : 255;
 
-	addr->first_octet += (rem = total_hosts / (256 * 256 * 256)) <= (256 * 256 * 256) ? rem : 255;
+	addr->first_octet += rem; //(rem = total_hosts / (256 * 256 * 256)) <= (256 * 256 * 256) ? rem : 255;
 
 	return addr;
 }
