@@ -429,7 +429,6 @@ bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr,
 bool IsIPv4NetworkClassful(const IPv4Network * network)
 {
 	IPv4Mask mask = network->mask;
-	char Class = network->id.Class;
 
 	if (!network->IsInitialized)
 	{
@@ -437,19 +436,19 @@ bool IsIPv4NetworkClassful(const IPv4Network * network)
 	}
 
 	// class A
-	if (Class == 'A' && mask.first_octet == 255 && mask.second_octet == 0 && mask.third_octet == 0 && mask.fourth_octet == 0)
+	if (network->id.Class == 'A' && mask.first_octet == 255 && mask.second_octet == 0 && mask.third_octet == 0 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
 
 	// class B
-	else if (Class == 'B' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 0 && mask.fourth_octet == 0)
+	else if (network->id.Class == 'B' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 0 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
 
 	// class C
-	else if (Class == 'C' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 255 && mask.fourth_octet == 0)
+	else if (network->id.Class == 'C' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 255 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
