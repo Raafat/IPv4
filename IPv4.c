@@ -396,27 +396,29 @@ IPv4Addr * GetBroadcastIPv4Addr(const IPv4Network * network)
 
 bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr, const IPv4Mask * mask)
 {
+	IPv4Addr network_id = network->id;
+
 	if (!(network->IsInitialized && addr->IsInitialized && mask->IsInitialized))
 	{
 		return false;
 	}
 
-	if (network->id.first_octet != (addr->first_octet & mask->first_octet))
+	if (network_id.first_octet != (addr->first_octet & mask->first_octet))
 	{
 		return false;
 	}
 
-	if (network->id.second_octet != (addr->second_octet & mask->second_octet))
+	if (network_id.second_octet != (addr->second_octet & mask->second_octet))
 	{
 		return false;
 	}
 
-	if (network->id.third_octet != (addr->third_octet & mask->third_octet))
+	if (network_id.third_octet != (addr->third_octet & mask->third_octet))
 	{
 		return false;
 	}
 
-	if (network->id.fourth_octet != (addr->fourth_octet & mask->fourth_octet))
+	if (network_id.fourth_octet != (addr->fourth_octet & mask->fourth_octet))
 	{
 		return false;
 	}
