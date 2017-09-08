@@ -346,37 +346,35 @@ IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network)
 IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network)
 {
 	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
-
+	unsigned long squared_256 = 256 * 256;
+	unsigned long cubed_256 = 256 * 256 * 256;
 	unsigned long total_hosts = GetNumberOfIPv4Hosts(network);
-	unsigned long rem;
-
 	*addr = network->id;
 
 	if (!addr)
 	{
 		return NULL;
 	}
-	/*
-	addr->first_octet = total_hosts / (256 * 256 * 256);
-	total_hosts = total_hosts % (256 * 256 * 256);
+	
+	if (total_hosts > cubed_256)
+	{
+		addr->first_octet += total_hosts / cubed_256;
+		total_hosts = total_hosts % cubed_256;
+	}
 
-	addr->second_octet = total_hosts / (256 * 256);
-	total_hosts = total_hosts % (256 * 256);
+	if (total_hosts > squared_256)
+	{
+		addr->second_octet += total_hosts / squared_256;
+		total_hosts = total_hosts % squared_256;
+	}
 
-	addr->third_octet = total_hosts / 256;
-	total_hosts = total_hosts % 256;
-
-	addr->fourth_octet = total_hosts;
-	*/
+	if (total_hosts > 256)
+	{
+		addr->third_octet += total_hosts / 256;
+	}
 	
 	addr->fourth_octet += total_hosts % 256;
 
-	addr->third_octet += (rem = total_hosts / 256) <= 255 ? rem : 255;
-
-	addr->second_octet += (rem = total_hosts / (256 * 256)) <= (256 * 256) ? rem : 255;
-
-	addr->first_octet += total_hosts / (256 * 256 * 256);
-	
 	return addr;
 }
 
