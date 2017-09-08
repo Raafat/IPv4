@@ -65,7 +65,7 @@ IPv4Addr * GetBroadcastIPv4Addr(const IPv4Network * network);
 
 bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr, const IPv4Mask * mask);
 
-bool IsClassfulIPv4Network(const IPv4Network * network);
+bool IsIPv4NetworkClassful(const IPv4Network * network);
 
 char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit);
 

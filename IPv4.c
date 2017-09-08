@@ -424,8 +424,10 @@ bool DoesBelongToIPv4Network(const IPv4Network * network, const IPv4Addr * addr,
 	return true;
 }
 
-bool IsClassfulIPv4Network(const IPv4Network * network)
+bool IsIPv4NetworkClassful(const IPv4Network * network)
 {
+	IPv4Mask mask = network->mask;
+	char Class = network->id.Class;
 
 	if (!network->IsInitialized)
 	{
@@ -433,19 +435,19 @@ bool IsClassfulIPv4Network(const IPv4Network * network)
 	}
 
 	// class A
-	if (network->id.Class == 'A' && network->mask.first_octet == 255 && network->mask.second_octet == 0 && network->mask.third_octet == 0 && network->mask.fourth_octet == 0)
+	if (Class == 'A' && mask.first_octet == 255 && mask.second_octet == 0 && mask.third_octet == 0 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
 
 	// class B
-	else if (network->id.Class == 'B' && network->mask.first_octet == 255 && network->mask.second_octet == 255 && network->mask.third_octet == 0 && network->mask.fourth_octet == 0)
+	else if (Class == 'B' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 0 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
 
 	// class C
-	else if (network->id.Class == 'C' && network->mask.first_octet == 255 && network->mask.second_octet == 255 && network->mask.third_octet == 255 && network->mask.fourth_octet == 0)
+	else if (Class == 'C' && mask.first_octet == 255 && mask.second_octet == 255 && mask.third_octet == 255 && mask.fourth_octet == 0)
 	{
 		return true;
 	}
@@ -484,7 +486,7 @@ inline char ** GetIPv4HostAddrs(const IPv4Network * network, unsigned long limit
 	}
 
 	// go over host addresses
-	for (unsigned long host = 1, i = 0, j = 0; host <= total_hosts; host++)
+	for (unsigned long host = total_hosts, i = 0, j = 0; host != 0; host--)
 	 {
 		// octets' algorithm
 	 	if (++fourth_octet == 256)
@@ -528,7 +530,7 @@ bool ReadIPv4HostAddrsIntoAFile(IPv4Network * network, unsigned long limit, FILE
 	}
 
 	// go over host addresses
-	for (unsigned long host = 1; host <= total_hosts; host++)
+	for (unsigned long host = total_hosts; host != 0; host--)
 	 {
 		 // octets' algorithm
 		 if (++fourth_octet == 256)
@@ -678,6 +680,7 @@ char ** ListOfAvailableIPv4Subnets(IPv4Network * network, unsigned long limit)
 	// use limit as a maximum limit and ensure limit is not beyond value of total_subnets
 	total_subnets = total_subnets < limit ? total_subnets : limit;
 	
+	// generating IPv4 subnets in case they are available
 	for (unsigned long subnet = total_subnets, j = 0, i = 0; subnet != 0; subnet--)
 	{
 		sprintf(subnets + j, "%d.%d.%d.%d",first_octet, second_octet, third_octet, fourth_octet);
