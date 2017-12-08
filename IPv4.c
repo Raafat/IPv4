@@ -346,34 +346,13 @@ IPv4Addr * GetFirstUsableIPv4Addr(const IPv4Network * network)
 IPv4Addr * GetLastUsableIPv4Addr(const IPv4Network * network)
 {
 	IPv4Addr * addr = (IPv4Addr *) malloc(sizeof(IPv4Addr));
-	unsigned long squared_256 = 256 * 256;
-	unsigned long cubed_256 = 256 * 256 * 256;
-	unsigned long total_hosts = GetNumberOfIPv4Hosts(network);
-	*addr = network->id;
 
-	if (!addr)
-	{
-		return NULL;
-	}
-	
-	if (total_hosts > cubed_256)
-	{
-		addr->first_octet += total_hosts / cubed_256;
-		total_hosts = total_hosts % cubed_256;
-	}
+	addr->first_octet = network->id.first_octet | (255 - network->mask.first_octet);
+	addr->second_octet = network->id.second_octet | (255 - network->mask.second_octet);
+	addr->third_octet = network->id.third_octet | (255 - network->mask.third_octet);
+	addr->fourth_octet = (network->id.fourth_octet | (255 - network->mask.fourth_octet)) - 1;
 
-	if (total_hosts > squared_256)
-	{
-		addr->second_octet += total_hosts / squared_256;
-		total_hosts = total_hosts % squared_256;
-	}
-
-	if (total_hosts > 256)
-	{
-		addr->third_octet += total_hosts / 256;
-	}
-	
-	addr->fourth_octet += total_hosts % 256;
+	addr->IsInitialized = true;
 
 	return addr;
 }
